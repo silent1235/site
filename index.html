@@ -593,7 +593,8 @@ h1 {
 ========================================================= */
 
 .settings-toggle,
-.player-toggle {
+.player-toggle,
+.status-toggle {
 
   position:
     fixed;
@@ -688,6 +689,26 @@ h1 {
 }
 
 
+/*
+   Третья боковая кнопка — статус в Steam.
+   Стоит отдельно от плеера, левее центрального блока,
+   по вертикали примерно на уровне середины экрана.
+*/
+
+.status-toggle {
+
+  left:
+    18px;
+
+  top:
+    50%;
+
+  transform:
+    translate3d(0,-50%,0)
+    scale(.94);
+}
+
+
 .settings-toggle.is-visible,
 .player-toggle.is-visible {
 
@@ -703,10 +724,26 @@ h1 {
 }
 
 
+.status-toggle.is-visible {
+
+  opacity:
+    1;
+
+  visibility:
+    visible;
+
+  transform:
+    translate3d(0,-50%,0)
+    scale(1);
+}
+
+
 .settings-toggle:hover,
 .settings-toggle:focus-visible,
 .player-toggle:hover,
-.player-toggle:focus-visible {
+.player-toggle:focus-visible,
+.status-toggle:hover,
+.status-toggle:focus-visible {
 
   color:
     var(--ink);
@@ -731,10 +768,28 @@ h1 {
 }
 
 
-.settings-toggle:active,
-.player-toggle:active {
+.status-toggle:hover,
+.status-toggle:focus-visible {
 
   transform:
+    translate3d(0,calc(-50% - 2px),0)
+    scale(1.02);
+}
+
+
+.settings-toggle:active,
+.player-toggle:active,
+.status-toggle:active {
+
+  transform:
+    scale(.95);
+}
+
+
+.status-toggle:active {
+
+  transform:
+    translate3d(0,-50%,0)
     scale(.95);
 }
 
@@ -859,6 +914,33 @@ h1 {
 
 
 /* =========================================================
+   STATUS ICON
+========================================================= */
+
+.status-icon {
+
+  width:
+    20px;
+
+  height:
+    20px;
+}
+
+
+.status-toggle:hover .status-icon,
+.status-toggle:focus-visible .status-icon {
+
+  filter:
+    drop-shadow(
+      0 0 4px var(--accent)
+    );
+
+  transform:
+    scale(1.06);
+}
+
+
+/* =========================================================
    PLAYER INDICATOR
 ========================================================= */
 
@@ -891,6 +973,50 @@ h1 {
   box-shadow:
     0 0 6px var(--accent),
     0 0 12px var(--accent);
+
+  animation:
+    player-dot-pulse
+    1.5s
+    ease-in-out
+    infinite;
+}
+
+
+/*
+   Индикатор активности в Steam — тот же зелёный пульс,
+   но подсвечивается только когда кто-то из профилей
+   реально в сети или в игре.
+*/
+
+.status-toggle.is-active::after {
+
+  content:
+    "";
+
+  position:
+    absolute;
+
+  top:
+    5px;
+
+  right:
+    5px;
+
+  width:
+    6px;
+
+  height:
+    6px;
+
+  border-radius:
+    50%;
+
+  background:
+    #34D399;
+
+  box-shadow:
+    0 0 6px #34D399,
+    0 0 12px #34D399;
 
   animation:
     player-dot-pulse
@@ -2662,6 +2788,191 @@ input[type="range"]:hover {
 
 
 /* =========================================================
+   STATUS PANEL (Steam)
+========================================================= */
+
+.status-panel {
+
+  max-width:
+    340px;
+}
+
+
+.status-list {
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    10px;
+
+  margin-bottom:
+    14px;
+}
+
+
+.status-row {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+
+  padding:
+    10px 11px;
+
+  border-radius:
+    11px;
+
+  background:
+    var(--surface);
+
+  border:
+    1px solid var(--border);
+}
+
+
+.status-dot {
+
+  flex:
+    none;
+
+  width:
+    9px;
+
+  height:
+    9px;
+
+  border-radius:
+    50%;
+
+  background:
+    #6B7280;
+
+  box-shadow:
+    0 0 6px rgba(107,114,128,.6);
+}
+
+
+.status-dot.state-ingame {
+
+  background:
+    #34D399;
+
+  box-shadow:
+    0 0 8px #34D399,
+    0 0 16px #34D399;
+}
+
+
+.status-dot.state-online {
+
+  background:
+    #60A5FA;
+
+  box-shadow:
+    0 0 8px #60A5FA;
+}
+
+
+.status-dot.state-away {
+
+  background:
+    #FBBF24;
+
+  box-shadow:
+    0 0 6px #FBBF24;
+}
+
+
+.status-dot.state-offline {
+
+  background:
+    #6B7280;
+
+  box-shadow:
+    none;
+}
+
+
+.status-info {
+
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    1px;
+}
+
+
+.status-name {
+
+  font-size:
+    14px;
+
+  font-weight:
+    600;
+
+  color:
+    var(--ink);
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+}
+
+
+.status-detail {
+
+  font-size:
+    12px;
+
+  color:
+    var(--muted);
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+}
+
+
+.status-updated {
+
+  margin:
+    0;
+
+  color:
+    var(--muted);
+
+  font-size:
+    12px;
+}
+
+
+/* =========================================================
    INTRO
 ========================================================= */
 
@@ -3049,7 +3360,8 @@ input[type="range"]:hover {
   .intro-overlay::after,
   .page,
   .settings-toggle,
-  .player-toggle {
+  .player-toggle,
+  .status-toggle {
 
     animation:
       none !important;
@@ -3083,7 +3395,8 @@ input[type="range"]:hover {
 
 
   .settings-toggle,
-  .player-toggle {
+  .player-toggle,
+  .status-toggle {
 
     opacity:
       1 !important;
@@ -3164,6 +3477,30 @@ input[type="range"]:hover {
 
     <path
       d="M9 6.5v2.2l9.5-2.5">
+    </path>
+
+  </svg>
+
+</button>
+
+
+<!-- =======================================================
+     STEAM STATUS SIDE BUTTON
+======================================================= -->
+
+<button
+  class="status-toggle"
+  id="statusBtn"
+  type="button"
+  aria-label="Активен ли я сейчас?">
+
+  <svg
+    class="corner-icon status-icon"
+    viewBox="0 0 24 24"
+    aria-hidden="true">
+
+    <path
+      d="M3 12h4l2.2 6.5L12 5l2.5 10L16.3 12H21">
     </path>
 
   </svg>
@@ -3496,6 +3833,73 @@ input[type="range"]:hover {
       Играть в кампуктер :3
 
     </h2>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     STEAM STATUS MODAL
+======================================================= -->
+
+<div
+  class="modal-overlay"
+  id="statusOverlay">
+
+  <div
+    class="modal status-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="statusTitle">
+
+    <button
+      class="modal-close"
+      id="statusClose"
+      type="button"
+      aria-label="Закрыть">
+
+      <svg
+        class="close-icon"
+        viewBox="0 0 24 24">
+
+        <path
+          d="M6 6l12 12">
+        </path>
+
+        <path
+          d="M18 6L6 18">
+        </path>
+
+      </svg>
+
+    </button>
+
+
+    <h2 id="statusTitle">
+
+      Активен ли я сейчас?
+
+    </h2>
+
+
+    <div
+      class="status-list"
+      id="statusList">
+
+      <p class="status-updated">
+
+        Загружаю статус...
+
+      </p>
+
+    </div>
+
+
+    <p
+      class="status-updated"
+      id="statusUpdated">
+    </p>
 
   </div>
 
@@ -3909,6 +4313,12 @@ const playerButton =
 const settingsButton =
   document.getElementById(
     'settingsBtn'
+  );
+
+
+const statusButton =
+  document.getElementById(
+    'statusBtn'
   );
 
 
@@ -4511,6 +4921,10 @@ setTimeout(
           'is-visible'
         );
 
+        statusButton.classList.add(
+          'is-visible'
+        );
+
       },
 
       180
@@ -4555,7 +4969,9 @@ document.addEventListener(
 function setupOverlay(
   triggerBtn,
   overlay,
-  closeBtn
+  closeBtn,
+  onOpen,
+  onClose
 ) {
 
   function onKeydown(e) {
@@ -4582,6 +4998,14 @@ function setupOverlay(
       onKeydown
     );
 
+    if (
+      typeof onOpen === 'function'
+    ) {
+
+      onOpen();
+
+    }
+
   }
 
 
@@ -4595,6 +5019,14 @@ function setupOverlay(
       'keydown',
       onKeydown
     );
+
+    if (
+      typeof onClose === 'function'
+    ) {
+
+      onClose();
+
+    }
 
   }
 
@@ -4690,6 +5122,383 @@ setupOverlay(
   document.getElementById(
     'gameClose'
   )
+);
+
+
+/* =========================================================
+   STEAM STATUS (real-time)
+========================================================= */
+
+/*
+   ⚠️ ВАЖНО, ПРОЧИТАЙ ПЕРЕД ИСПОЛЬЗОВАНИЕМ.
+
+   Steam Web API не отдаёт заголовки CORS и не должен
+   вызываться из браузера напрямую — иначе придётся хранить
+   секретный API-ключ прямо в этом файле, а его увидит любой,
+   кто откроет "просмотр кода страницы".
+
+   Поэтому этот блок обращается не к api.steampowered.com,
+   а к твоему собственному маленькому прокси (например,
+   Cloudflare Worker), который сам дергает Steam API и
+   отдаёт браузеру только безопасный JSON.
+
+   Замени STEAM_PROXY_URL на адрес своего прокси после того,
+   как задеплоишь worker.js.
+*/
+
+const STEAM_PROXY_URL =
+  'https://REPLACE-ME.workers.dev/steam-status';
+
+
+const STEAM_POLL_INTERVAL =
+  30000;
+
+
+let steamPollTimer =
+  null;
+
+
+const STEAM_STATE_LABELS = {
+
+  0: 'Не в сети',
+  1: 'В сети',
+  2: 'Занят(а)',
+  3: 'Отошёл(ла)',
+  4: 'Спит режим',
+  5: 'Ищет обмен',
+  6: 'Хочет поиграть'
+
+};
+
+
+function steamStateClass(
+  state,
+  inGame
+) {
+
+  if (inGame) {
+
+    return 'state-ingame';
+
+  }
+
+
+  if (state === 1) {
+
+    return 'state-online';
+
+  }
+
+
+  if (state === 0) {
+
+    return 'state-offline';
+
+  }
+
+
+  return 'state-away';
+
+}
+
+
+function renderSteamStatus(players) {
+
+  const listEl =
+    document.getElementById(
+      'statusList'
+    );
+
+
+  listEl.innerHTML =
+    '';
+
+
+  let anyActive =
+    false;
+
+
+  players.forEach(
+    function (p) {
+
+      const row =
+        document.createElement(
+          'div'
+        );
+
+
+      row.className =
+        'status-row';
+
+
+      const dot =
+        document.createElement(
+          'span'
+        );
+
+
+      dot.className =
+        'status-dot ' +
+        steamStateClass(
+          p.state,
+          p.inGame
+        );
+
+
+      const info =
+        document.createElement(
+          'div'
+        );
+
+
+      info.className =
+        'status-info';
+
+
+      const name =
+        document.createElement(
+          'span'
+        );
+
+
+      name.className =
+        'status-name';
+
+
+      name.textContent =
+        p.name ||
+        'Steam-профиль';
+
+
+      const detail =
+        document.createElement(
+          'span'
+        );
+
+
+      detail.className =
+        'status-detail';
+
+
+      detail.textContent =
+        p.inGame
+          ? (
+              'В игре: ' +
+              p.game
+            )
+          : (
+              STEAM_STATE_LABELS[
+                p.state
+              ] ||
+              'Неизвестно'
+            );
+
+
+      info.appendChild(
+        name
+      );
+
+
+      info.appendChild(
+        detail
+      );
+
+
+      row.appendChild(
+        dot
+      );
+
+
+      row.appendChild(
+        info
+      );
+
+
+      listEl.appendChild(
+        row
+      );
+
+
+      if (
+        p.inGame ||
+        p.state === 1
+      ) {
+
+        anyActive =
+          true;
+
+      }
+
+    }
+  );
+
+
+  statusButton.classList.toggle(
+    'is-active',
+    anyActive
+  );
+
+}
+
+
+async function fetchSteamStatus() {
+
+  const listEl =
+    document.getElementById(
+      'statusList'
+    );
+
+
+  const updatedEl =
+    document.getElementById(
+      'statusUpdated'
+    );
+
+
+  try {
+
+    const res =
+      await fetch(
+        STEAM_PROXY_URL,
+        {
+          cache:
+            'no-store'
+        }
+      );
+
+
+    if (!res.ok) {
+
+      throw new Error(
+        'bad response'
+      );
+
+    }
+
+
+    const data =
+      await res.json();
+
+
+    const players =
+      data.players ||
+      [];
+
+
+    if (
+      !players.length
+    ) {
+
+      listEl.innerHTML =
+        '<p class="status-updated">Профили не найдены.</p>';
+
+      return;
+
+    }
+
+
+    renderSteamStatus(
+      players
+    );
+
+
+    updatedEl.textContent =
+      'Обновлено: ' +
+      new Date(
+        data.ts ||
+        Date.now()
+      ).toLocaleTimeString(
+        'ru-RU'
+      );
+
+  } catch (err) {
+
+    listEl.innerHTML =
+      '<p class="status-updated">Не удалось получить статус. Прокси ещё не настроен или недоступен.</p>';
+
+
+    updatedEl.textContent =
+      '';
+
+
+    console.warn(
+      'Steam status fetch failed:',
+      err
+    );
+
+  }
+
+}
+
+
+function startSteamPolling() {
+
+  fetchSteamStatus();
+
+
+  if (steamPollTimer) {
+
+    clearInterval(
+      steamPollTimer
+    );
+
+  }
+
+
+  steamPollTimer =
+    setInterval(
+      fetchSteamStatus,
+      STEAM_POLL_INTERVAL
+    );
+
+}
+
+
+function stopSteamPolling() {
+
+  if (steamPollTimer) {
+
+    clearInterval(
+      steamPollTimer
+    );
+
+
+    steamPollTimer =
+      null;
+
+  }
+
+}
+
+
+setupOverlay(
+  statusButton,
+
+  document.getElementById(
+    'statusOverlay'
+  ),
+
+  document.getElementById(
+    'statusClose'
+  ),
+
+  startSteamPolling,
+
+  stopSteamPolling
+);
+
+
+/*
+   Лёгкий фоновый опрос раз в минуту, чтобы точка-индикатор
+   на самой кнопке была живой, даже если окно не открыто.
+*/
+
+fetchSteamStatus();
+
+
+setInterval(
+  fetchSteamStatus,
+  60000
 );
 
 
