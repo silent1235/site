@@ -3420,6 +3420,68 @@ input[type="range"]:hover {
 
 }
 
+
+/* =========================================================
+   PATCH: light themes, mode switch, Steam status
+========================================================= */
+.modal-overlay{background:var(--overlay,rgba(5,2,14,.66))}
+.intro-text{color:var(--ink)}
+:root[data-mode="light"] body::before{filter:invert(1);opacity:.5}
+:root[data-mode="light"] input[type="range"]{background:rgba(40,25,70,.16)}
+:root[data-mode="light"] .link:not(.link--primary),
+:root[data-mode="light"] .settings-toggle,
+:root[data-mode="light"] .player-toggle,
+:root[data-mode="light"] .status-toggle{background:rgba(255,255,255,.62)}
+:root[data-mode="light"] .link:not(.link--primary):hover,
+:root[data-mode="light"] .link:not(.link--primary):focus-visible,
+:root[data-mode="light"] .settings-toggle:hover,
+:root[data-mode="light"] .player-toggle:hover,
+:root[data-mode="light"] .status-toggle:hover{background:rgba(255,255,255,.92)}
+
+/* mode switch */
+.mode-switch{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin:0 0 8px;
+  border-radius:13px;background:var(--surface);border:1px solid var(--border)}
+.mode-switch button{font:inherit;font-size:14px;font-weight:600;padding:8px 4px;border:0;border-radius:9px;
+  background:transparent;color:var(--muted);cursor:pointer;transition:color .2s,background .2s,box-shadow .2s}
+.mode-switch button:hover{color:var(--ink)}
+.mode-switch button.is-active{background:var(--grad);color:#fff;box-shadow:0 0 12px var(--cta-glow)}
+.mode-note{margin:0 0 14px;font-size:12px;color:var(--muted)}
+
+/* status button */
+.status-toggle{width:auto;min-width:46px;height:46px;padding:0 13px;border-radius:16px;--st:#6B7280;
+  border-color:color-mix(in srgb,var(--st) 40%,rgba(255,255,255,.12))}
+.status-toggle[data-state="ingame"]{--st:#10B981}
+.status-toggle[data-state="online"]{--st:#3B82F6}
+.status-toggle[data-state="away"]{--st:#F59E0B}
+.status-toggle[data-state]::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--st);box-shadow:0 0 8px var(--st)}
+.status-toggle.is-active::after{background:var(--st);box-shadow:0 0 6px var(--st),0 0 12px var(--st)}
+.status-toggle svg{flex:none}
+.status-label{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:13px;font-weight:600;
+  color:var(--ink);transition:max-width .32s cubic-bezier(.16,1,.3,1),opacity .22s,margin .32s}
+.status-toggle:hover .status-label,.status-toggle:focus-visible .status-label{max-width:150px;opacity:1;margin-left:9px}
+@media (hover:none){.status-label{display:none}}
+
+/* status modal */
+.st-card{position:relative;overflow:hidden;border-radius:16px;padding:14px;background:var(--surface);
+  border:1px solid color-mix(in srgb,var(--st) 35%,var(--border))}
+.st-card.has-game::before{content:"";position:absolute;inset:0;background:var(--banner) center/cover;opacity:.2}
+.st-card>*{position:relative}
+.st-top{display:flex;align-items:center;gap:12px}
+.st-avatar{position:relative;width:54px;height:54px;flex:none}
+.st-avatar img,.st-avatar .ph{display:block;width:100%;height:100%;border-radius:16px;object-fit:cover;
+  background:var(--surface-2);border:2px solid var(--st);box-shadow:0 0 18px color-mix(in srgb,var(--st) 45%,transparent)}
+.st-avatar i{position:absolute;right:-4px;bottom:-4px;width:15px;height:15px;border-radius:50%;
+  background:var(--st);border:3px solid var(--modal-bg)}
+.st-card.live .st-avatar i{animation:player-dot-pulse 1.5s ease-in-out infinite}
+.st-name{display:block;font-size:18px;font-weight:700;line-height:1.2}
+.st-state{color:var(--st);font-size:13px;font-weight:700;letter-spacing:.3px}
+.st-info{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-top:13px;
+  padding-top:11px;border-top:1px solid var(--border);font-size:14px}
+.st-info>span{color:var(--muted);flex:none}
+.st-info>b{font-weight:600;text-align:right}
+.st-info small{display:block;margin-top:1px;color:var(--muted);font-size:12px;font-weight:500}
+
 </style>
 </head>
 
@@ -4323,471 +4385,146 @@ const statusButton =
 
 
 /* =========================================================
-   THEMES
+   THEMES  (dark + light, auto / manual mode)
 ========================================================= */
 
-const THEMES = {
-
-  cosmic: {
-
-    name:
-      'Космос',
-
-    bg1:
-      '#150629',
-
-    glow1:
-      'rgba(124,58,237,.45)',
-
-    glow2:
-      'rgba(236,72,153,.28)',
-
-    glow3:
-      'rgba(59,7,100,.65)',
-
-    accent:
-      '#C084FC',
-
-    muted:
-      '#B9A8D9',
-
-    grad:
-      'linear-gradient(135deg,#7C3AED,#EC4899)',
-
-    textGlow:
-      'rgba(192,132,252,.35)',
-
-    hoverGlow:
-      'rgba(192,132,252,.25)',
-
-    ctaGlow:
-      'rgba(236,72,153,.5)',
-
-    modalBg:
-      '#1E0B3B',
-
-    introGlow:
-      'rgba(124,58,237,.27)',
-
-    introGlow2:
-      'rgba(236,72,153,.12)'
-
-  },
-
-
-  blackout: {
-
-    name:
-      'Блэкаут',
-
-    bg1:
-      '#0A0A0C',
-
-    glow1:
-      'rgba(90,90,100,.45)',
-
-    glow2:
-      'rgba(150,160,180,.22)',
-
-    glow3:
-      'rgba(20,20,24,.7)',
-
-    accent:
-      '#D4D4D8',
-
-    muted:
-      '#A1A1AA',
-
-    grad:
-      'linear-gradient(135deg,#52525B,#18181B)',
-
-    textGlow:
-      'rgba(212,212,216,.3)',
-
-    hoverGlow:
-      'rgba(212,212,216,.22)',
-
-    ctaGlow:
-      'rgba(212,212,216,.4)',
-
-    modalBg:
-      '#131316',
-
-    introGlow:
-      'rgba(150,150,160,.13)',
-
-    introGlow2:
-      'rgba(90,90,100,.08)'
-
-  },
-
-
-  inferno: {
-
-    name:
-      'Инферно',
-
-    bg1:
-      '#170404',
-
-    glow1:
-      'rgba(220,38,38,.45)',
-
-    glow2:
-      'rgba(249,115,22,.28)',
-
-    glow3:
-      'rgba(76,5,5,.65)',
-
-    accent:
-      '#FCA5A5',
-
-    muted:
-      '#F0A0A0',
-
-    grad:
-      'linear-gradient(135deg,#DC2626,#F97316)',
-
-    textGlow:
-      'rgba(248,113,113,.35)',
-
-    hoverGlow:
-      'rgba(248,113,113,.25)',
-
-    ctaGlow:
-      'rgba(249,115,22,.5)',
-
-    modalBg:
-      '#280707',
-
-    introGlow:
-      'rgba(220,38,38,.2)',
-
-    introGlow2:
-      'rgba(249,115,22,.1)'
-
-  },
-
-
-  cyber: {
-
-    name:
-      'Кибер',
-
-    bg1:
-      '#03140C',
-
-    glow1:
-      'rgba(16,185,129,.4)',
-
-    glow2:
-      'rgba(34,211,238,.25)',
-
-    glow3:
-      'rgba(6,78,59,.6)',
-
-    accent:
-      '#6EE7B7',
-
-    muted:
-      '#8FDCC0',
-
-    grad:
-      'linear-gradient(135deg,#10B981,#22D3EE)',
-
-    textGlow:
-      'rgba(110,231,183,.35)',
-
-    hoverGlow:
-      'rgba(110,231,183,.25)',
-
-    ctaGlow:
-      'rgba(34,211,238,.45)',
-
-    modalBg:
-      '#052015',
-
-    introGlow:
-      'rgba(16,185,129,.18)',
-
-    introGlow2:
-      'rgba(34,211,238,.1)'
-
-  },
-
-
-  ocean: {
-
-    name:
-      'Океан',
-
-    bg1:
-      '#040E22',
-
-    glow1:
-      'rgba(37,99,235,.4)',
-
-    glow2:
-      'rgba(6,182,212,.28)',
-
-    glow3:
-      'rgba(30,58,138,.6)',
-
-    accent:
-      '#7DD3FC',
-
-    muted:
-      '#93CFF3',
-
-    grad:
-      'linear-gradient(135deg,#2563EB,#06B6D4)',
-
-    textGlow:
-      'rgba(125,211,252,.35)',
-
-    hoverGlow:
-      'rgba(125,211,252,.25)',
-
-    ctaGlow:
-      'rgba(6,182,212,.45)',
-
-    modalBg:
-      '#071A34',
-
-    introGlow:
-      'rgba(37,99,235,.18)',
-
-    introGlow2:
-      'rgba(6,182,212,.1)'
-
-  }
-
+const DARK_BASE = {
+  mode: 'dark', ink: '#F3ECFF', introDark: '#020106',
+  surface: 'rgba(255,255,255,.055)', surface2: 'rgba(255,255,255,.09)',
+  border: 'rgba(255,255,255,.15)', overlay: 'rgba(5,2,14,.66)'
 };
 
+const LIGHT_BASE = {
+  mode: 'light',
+  surface: 'rgba(255,255,255,.55)', surface2: 'rgba(255,255,255,.88)',
+  border: 'rgba(40,25,70,.14)', overlay: 'rgba(235,230,245,.6)'
+};
 
-/* =========================================================
-   APPLY THEME
-========================================================= */
-
-function applyTheme(
-  key,
-  save = true
-) {
-
-  const t =
-    THEMES[key];
-
-
-  if (!t) {
-    return;
-  }
-
-
-  root.style.setProperty(
-    '--bg-1',
-    t.bg1
-  );
-
-  root.style.setProperty(
-    '--glow-1',
-    t.glow1
-  );
-
-  root.style.setProperty(
-    '--glow-2',
-    t.glow2
-  );
-
-  root.style.setProperty(
-    '--glow-3',
-    t.glow3
-  );
-
-  root.style.setProperty(
-    '--accent',
-    t.accent
-  );
-
-  root.style.setProperty(
-    '--muted',
-    t.muted
-  );
-
-  root.style.setProperty(
-    '--grad',
-    t.grad
-  );
-
-  root.style.setProperty(
-    '--text-glow',
-    t.textGlow
-  );
-
-  root.style.setProperty(
-    '--hover-glow',
-    t.hoverGlow
-  );
-
-  root.style.setProperty(
-    '--cta-glow',
-    t.ctaGlow
-  );
-
-  root.style.setProperty(
-    '--modal-bg',
-    t.modalBg
-  );
-
-  root.style.setProperty(
-    '--intro-glow',
-    t.introGlow
-  );
-
-  root.style.setProperty(
-    '--intro-glow-2',
-    t.introGlow2
-  );
-
-
-  document
-    .querySelectorAll(
-      '.theme-swatch'
-    )
-    .forEach(
-      function (btn) {
-
-        btn.classList.toggle(
-          'is-active',
-          btn.dataset.theme === key
-        );
-
-      }
-    );
-
-
-  if (save) {
-
-    localStorage.setItem(
-      'silent1235-theme',
-      key
-    );
-
-  }
-
+function rgba(h, a) {
+  const n = parseInt(h.slice(1), 16);
+  return 'rgba(' + (n >> 16) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')';
 }
 
-
-/* =========================================================
-   LOAD SAVED THEME
-========================================================= */
-
-const savedTheme =
-  localStorage.getItem(
-    'silent1235-theme'
-  );
-
-
-const initialTheme =
-  savedTheme &&
-  THEMES[savedTheme]
-    ? savedTheme
-    : 'cosmic';
-
-
-applyTheme(
-  initialTheme,
-  false
-);
-
-
-/* =========================================================
-   BUILD THEME GRID
-========================================================= */
-
-function buildThemeGrid() {
-
-  const grid =
-    document.getElementById(
-      'themeGrid'
-    );
-
-
-  Object
-    .keys(THEMES)
-    .forEach(
-      function (key) {
-
-        const t =
-          THEMES[key];
-
-
-        const btn =
-          document.createElement(
-            'button'
-          );
-
-
-        btn.type =
-          'button';
-
-        btn.className =
-          'theme-swatch';
-
-        btn.dataset.theme =
-          key;
-
-
-        btn.innerHTML =
-
-          '<span class="swatch-preview" style="background:' +
-          t.grad +
-          '"></span>' +
-
-          '<span class="swatch-label">' +
-          t.name +
-          '</span>';
-
-
-        btn.addEventListener(
-          'click',
-          function () {
-
-            applyTheme(
-              key,
-              true
-            );
-
-          }
-        );
-
-
-        grid.appendChild(
-          btn
-        );
-
-      }
-    );
-
-
-  document
-    .querySelectorAll(
-      '.theme-swatch'
-    )
-    .forEach(
-      function (btn) {
-
-        btn.classList.toggle(
-          'is-active',
-          btn.dataset.theme === initialTheme
-        );
-
-      }
-    );
-
+function D(name, bg1, glow1, glow2, glow3, accent, muted, g1, g2, textGlow, hoverGlow, ctaGlow, modalBg, introGlow, introGlow2) {
+  return Object.assign({
+    name: name, bg1: bg1, glow1: glow1, glow2: glow2, glow3: glow3, accent: accent, muted: muted,
+    grad: 'linear-gradient(135deg,' + g1 + ',' + g2 + ')', textGlow: textGlow, hoverGlow: hoverGlow,
+    ctaGlow: ctaGlow, modalBg: modalBg, introGlow: introGlow, introGlow2: introGlow2
+  }, DARK_BASE);
 }
 
+function L(name, bg, c1, c2, accent, muted, ink, g1, g2, modal) {
+  return Object.assign({
+    name: name, bg1: bg, glow1: rgba(c1, .3), glow2: rgba(c2, .28), glow3: rgba(c1, .16),
+    accent: accent, muted: muted, ink: ink, grad: 'linear-gradient(135deg,' + g1 + ',' + g2 + ')',
+    textGlow: rgba(accent, .16), hoverGlow: rgba(accent, .2), ctaGlow: rgba(g2, .4),
+    modalBg: modal, introDark: bg, introGlow: rgba(c1, .18), introGlow2: rgba(c2, .14)
+  }, LIGHT_BASE);
+}
 
-buildThemeGrid();
+const THEMES = {
+  /* ---- тёмные ---- */
+  cosmic:   D('Космос', '#150629', 'rgba(124,58,237,.45)', 'rgba(236,72,153,.28)', 'rgba(59,7,100,.65)', '#C084FC', '#B9A8D9', '#7C3AED', '#EC4899', 'rgba(192,132,252,.35)', 'rgba(192,132,252,.25)', 'rgba(236,72,153,.5)', '#1E0B3B', 'rgba(124,58,237,.27)', 'rgba(236,72,153,.12)'),
+  blackout: D('Блэкаут', '#0A0A0C', 'rgba(90,90,100,.45)', 'rgba(150,160,180,.22)', 'rgba(20,20,24,.7)', '#D4D4D8', '#A1A1AA', '#52525B', '#18181B', 'rgba(212,212,216,.3)', 'rgba(212,212,216,.22)', 'rgba(212,212,216,.4)', '#131316', 'rgba(150,150,160,.13)', 'rgba(90,90,100,.08)'),
+  inferno:  D('Инферно', '#170404', 'rgba(220,38,38,.45)', 'rgba(249,115,22,.28)', 'rgba(76,5,5,.65)', '#FCA5A5', '#F0A0A0', '#DC2626', '#F97316', 'rgba(248,113,113,.35)', 'rgba(248,113,113,.25)', 'rgba(249,115,22,.5)', '#280707', 'rgba(220,38,38,.2)', 'rgba(249,115,22,.1)'),
+  cyber:    D('Кибер', '#03140C', 'rgba(16,185,129,.4)', 'rgba(34,211,238,.25)', 'rgba(6,78,59,.6)', '#6EE7B7', '#8FDCC0', '#10B981', '#22D3EE', 'rgba(110,231,183,.35)', 'rgba(110,231,183,.25)', 'rgba(34,211,238,.45)', '#052015', 'rgba(16,185,129,.18)', 'rgba(34,211,238,.1)'),
+  ocean:    D('Океан', '#040E22', 'rgba(37,99,235,.4)', 'rgba(6,182,212,.28)', 'rgba(30,58,138,.6)', '#7DD3FC', '#93CFF3', '#2563EB', '#06B6D4', 'rgba(125,211,252,.35)', 'rgba(125,211,252,.25)', 'rgba(6,182,212,.45)', '#071A34', 'rgba(37,99,235,.18)', 'rgba(6,182,212,.1)'),
+
+  /* ---- светлые ---- */
+  dawn:     L('Рассвет',  '#FFF1EA', '#FB923C', '#F472B6', '#DB2777', '#8B5A6C', '#3A1526', '#F97316', '#EC4899', '#FFF7F3'),
+  lavender: L('Лаванда',  '#F5F0FF', '#A78BFA', '#F0ABFC', '#7C3AED', '#6D5A93', '#24123F', '#7C3AED', '#C026D3', '#FAF7FF'),
+  mint:     L('Мята',     '#EBFAF3', '#34D399', '#22D3EE', '#059669', '#4B7A69', '#0B2E22', '#059669', '#0891B2', '#F5FDF9'),
+  sky:      L('Небо',     '#ECF5FF', '#60A5FA', '#22D3EE', '#2563EB', '#4D6A8F', '#0B1F3D', '#2563EB', '#0891B2', '#F5FAFF'),
+  paper:    L('Бумага',   '#F6F5F2', '#A8A29E', '#D6B98C', '#3F3F46', '#71717A', '#18181B', '#52525B', '#18181B', '#FCFBF9')
+};
+
+const VARS = {
+  bg1: '--bg-1', glow1: '--glow-1', glow2: '--glow-2', glow3: '--glow-3', accent: '--accent', muted: '--muted',
+  ink: '--ink', grad: '--grad', textGlow: '--text-glow', hoverGlow: '--hover-glow', ctaGlow: '--cta-glow',
+  modalBg: '--modal-bg', introGlow: '--intro-glow', introGlow2: '--intro-glow-2', introDark: '--intro-dark',
+  surface: '--surface', surface2: '--surface-2', border: '--border', overlay: '--overlay'
+};
+
+const mq = window.matchMedia('(prefers-color-scheme: light)');
+let mode = localStorage.getItem('silent1235-mode') || 'auto';
+const chosen = {
+  dark: localStorage.getItem('silent1235-theme-dark') || localStorage.getItem('silent1235-theme') || 'cosmic',
+  light: localStorage.getItem('silent1235-theme-light') || 'dawn'
+};
+
+function effMode() { return mode === 'auto' ? (mq.matches ? 'light' : 'dark') : mode; }
+
+function pick(m) {
+  const t = THEMES[chosen[m]];
+  return t && t.mode === m ? chosen[m] : (m === 'dark' ? 'cosmic' : 'dawn');
+}
+
+function applyCurrent() {
+  const m = effMode(), key = pick(m), t = THEMES[key];
+  Object.keys(VARS).forEach(function (k) { root.style.setProperty(VARS[k], t[k]); });
+  root.dataset.mode = m;
+  root.style.colorScheme = m;
+
+  document.querySelectorAll('.theme-swatch').forEach(function (b) {
+    b.classList.toggle('is-active', b.dataset.theme === key);
+  });
+  document.querySelectorAll('.mode-switch button').forEach(function (b) {
+    b.classList.toggle('is-active', b.dataset.mode === mode);
+  });
+  const note = document.getElementById('modeNote');
+  if (note) {
+    note.textContent = mode === 'auto'
+      ? 'Сейчас в системе: ' + (mq.matches ? 'светлая' : 'тёмная') + ' тема. Сайт подстраивается сам.'
+      : 'Показаны только ' + (m === 'light' ? 'светлые' : 'тёмные') + ' темы.';
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('themeGrid');
+  const m = effMode();
+  grid.innerHTML = '';
+  Object.keys(THEMES).forEach(function (key) {
+    const t = THEMES[key];
+    if (t.mode !== m) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-swatch';
+    btn.dataset.theme = key;
+    btn.innerHTML = '<span class="swatch-preview" style="background:' + t.grad + '"></span><span class="swatch-label">' + t.name + '</span>';
+    btn.addEventListener('click', function () {
+      chosen[m] = key;
+      localStorage.setItem('silent1235-theme-' + m, key);
+      applyCurrent();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function setMode(next) {
+  mode = next;
+  localStorage.setItem('silent1235-mode', mode);
+  renderGrid();
+  applyCurrent();
+}
+
+(function buildSettings() {
+  const grid = document.getElementById('themeGrid');
+  grid.insertAdjacentHTML('beforebegin',
+    '<div class="mode-switch" id="modeSwitch">' +
+    '<button type="button" data-mode="auto">◐ Авто</button>' +
+    '<button type="button" data-mode="light">☀ Светлая</button>' +
+    '<button type="button" data-mode="dark">☾ Тёмная</button></div>' +
+    '<p class="mode-note" id="modeNote"></p>');
+  document.querySelectorAll('.mode-switch button').forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
+  renderGrid();
+  applyCurrent();
+})();
+
+mq.addEventListener('change', function () {
+  if (mode === 'auto') { renderGrid(); applyCurrent(); }
+});
 
 
 /* =========================================================
@@ -5129,377 +4866,132 @@ setupOverlay(
    STEAM STATUS (real-time)
 ========================================================= */
 
-/*
-   ⚠️ ВАЖНО, ПРОЧИТАЙ ПЕРЕД ИСПОЛЬЗОВАНИЕМ.
+/* Адрес твоего Cloudflare Worker (см. worker.js) */
+const STEAM_PROXY_URL = 'https://steam-status.loliolkok122.workers.dev/';
 
-   Steam Web API не отдаёт заголовки CORS и не должен
-   вызываться из браузера напрямую — иначе придётся хранить
-   секретный API-ключ прямо в этом файле, а его увидит любой,
-   кто откроет "просмотр кода страницы".
+const ST_COLORS = { ingame: '#10B981', online: '#3B82F6', away: '#F59E0B', offline: '#6B7280' };
+const ST_LABELS = { 0: 'Не в сети', 1: 'В сети', 2: 'Не беспокоить', 3: 'Отошёл', 4: 'Спит', 5: 'Хочет обменяться', 6: 'Хочет играть' };
+const ST_BTN = { ingame: 'В игре', online: 'В сети', away: 'Отошёл', offline: 'Не в сети' };
+const ST_RANK = { ingame: 3, online: 2, away: 1, offline: 0 };
 
-   Поэтому этот блок обращается не к api.steampowered.com,
-   а к твоему собственному маленькому прокси (например,
-   Cloudflare Worker), который сам дергает Steam API и
-   отдаёт браузеру только безопасный JSON.
+let steamPollTimer = null;
 
-   Замени STEAM_PROXY_URL на адрес своего прокси после того,
-   как задеплоишь worker.js.
-*/
+statusButton.querySelector('svg').innerHTML =
+  '<path d="M7 6h10a4 4 0 0 1 4 4v3a3 3 0 0 1-5.2 2L14.5 13.5h-5L8.2 15A3 3 0 0 1 3 13v-3a4 4 0 0 1 4-4z"></path>' +
+  '<path d="M7.5 9.5v3M6 11h3"></path><circle cx="15.5" cy="10.5" r=".6"></circle><circle cx="17.5" cy="12.2" r=".6"></circle>';
+statusButton.insertAdjacentHTML('beforeend', '<span class="status-label" id="statusLabel"></span>');
 
-const STEAM_PROXY_URL =
-  'https://REPLACE-ME.workers.dev/steam-status';
-
-
-const STEAM_POLL_INTERVAL =
-  30000;
-
-
-let steamPollTimer =
-  null;
-
-
-const STEAM_STATE_LABELS = {
-
-  0: 'Не в сети',
-  1: 'В сети',
-  2: 'Занят(а)',
-  3: 'Отошёл(ла)',
-  4: 'Спит режим',
-  5: 'Ищет обмен',
-  6: 'Хочет поиграть'
-
-};
-
-
-function steamStateClass(
-  state,
-  inGame
-) {
-
-  if (inGame) {
-
-    return 'state-ingame';
-
-  }
-
-
-  if (state === 1) {
-
-    return 'state-online';
-
-  }
-
-
-  if (state === 0) {
-
-    return 'state-offline';
-
-  }
-
-
-  return 'state-away';
-
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
 }
 
+function plural(n, a) {
+  const m = n % 10, c = n % 100;
+  return n + ' ' + (m === 1 && c !== 11 ? a[0] : (m > 1 && m < 5 && (c < 10 || c > 20) ? a[1] : a[2]));
+}
+
+function ago(ts) {
+  const m = Math.max(0, (Date.now() - ts) / 60000);
+  if (m < 1) return 'только что';
+  if (m < 60) return plural(Math.floor(m), ['минуту', 'минуты', 'минут']) + ' назад';
+  const h = m / 60;
+  if (h < 24) return plural(Math.floor(h), ['час', 'часа', 'часов']) + ' назад';
+  const d = h / 24;
+  if (d < 30) return plural(Math.floor(d), ['день', 'дня', 'дней']) + ' назад';
+  return new Date(ts).toLocaleDateString('ru-RU');
+}
+
+function stKey(p) {
+  if (p.game) return 'ingame';
+  if (p.state === 0) return 'offline';
+  if (p.state === 2 || p.state === 3 || p.state === 4) return 'away';
+  return 'online';
+}
+
+function stCard(p) {
+  const k = stKey(p);
+  let info;
+  if (!p.visible) {
+    info = ['Профиль', 'скрыт настройками приватности'];
+  } else if (p.game) {
+    info = ['Сейчас играет', esc(p.game)];
+  } else if (k === 'offline') {
+    info = ['Был в сети', p.lastLogoff
+      ? ago(p.lastLogoff) + '<small>' + new Date(p.lastLogoff).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '</small>'
+      : 'неизвестно'];
+  } else {
+    info = ['Игра', 'ничего не запущено'];
+  }
+
+  const banner = p.game && p.gameId
+    ? ' has-game" style="--banner:url(https://cdn.cloudflare.steamstatic.com/steam/apps/' + encodeURIComponent(p.gameId) + '/header.jpg);--st:' + ST_COLORS[k]
+    : '" style="--st:' + ST_COLORS[k];
+
+  return '<div class="st-card' + (k === 'ingame' || k === 'online' ? ' live' : '') + banner + '">' +
+    '<div class="st-top"><div class="st-avatar">' +
+    (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="ph"></div>') +
+    '<i></i></div><div><span class="st-name">' + esc(p.name || 'Steam-профиль') + '</span>' +
+    '<span class="st-state">' + (p.game ? 'В игре' : (ST_LABELS[p.state] || 'Неизвестно')) + '</span></div></div>' +
+    '<div class="st-info"><span>' + info[0] + '</span><b>' + info[1] + '</b></div></div>';
+}
 
 function renderSteamStatus(players) {
+  document.getElementById('statusList').innerHTML = players.map(stCard).join('');
 
-  const listEl =
-    document.getElementById(
-      'statusList'
-    );
-
-
-  listEl.innerHTML =
-    '';
-
-
-  let anyActive =
-    false;
-
-
-  players.forEach(
-    function (p) {
-
-      const row =
-        document.createElement(
-          'div'
-        );
-
-
-      row.className =
-        'status-row';
-
-
-      const dot =
-        document.createElement(
-          'span'
-        );
-
-
-      dot.className =
-        'status-dot ' +
-        steamStateClass(
-          p.state,
-          p.inGame
-        );
-
-
-      const info =
-        document.createElement(
-          'div'
-        );
-
-
-      info.className =
-        'status-info';
-
-
-      const name =
-        document.createElement(
-          'span'
-        );
-
-
-      name.className =
-        'status-name';
-
-
-      name.textContent =
-        p.name ||
-        'Steam-профиль';
-
-
-      const detail =
-        document.createElement(
-          'span'
-        );
-
-
-      detail.className =
-        'status-detail';
-
-
-      detail.textContent =
-        p.inGame
-          ? (
-              'В игре: ' +
-              p.game
-            )
-          : (
-              STEAM_STATE_LABELS[
-                p.state
-              ] ||
-              'Неизвестно'
-            );
-
-
-      info.appendChild(
-        name
-      );
-
-
-      info.appendChild(
-        detail
-      );
-
-
-      row.appendChild(
-        dot
-      );
-
-
-      row.appendChild(
-        info
-      );
-
-
-      listEl.appendChild(
-        row
-      );
-
-
-      if (
-        p.inGame ||
-        p.state === 1
-      ) {
-
-        anyActive =
-          true;
-
-      }
-
-    }
-  );
-
-
-  statusButton.classList.toggle(
-    'is-active',
-    anyActive
-  );
-
+  let best = 'offline';
+  players.forEach(function (p) {
+    const k = stKey(p);
+    if (ST_RANK[k] > ST_RANK[best]) best = k;
+  });
+  statusButton.dataset.state = best;
+  statusButton.classList.toggle('is-active', best === 'ingame' || best === 'online');
+  document.getElementById('statusLabel').textContent = ST_BTN[best];
 }
-
 
 async function fetchSteamStatus() {
-
-  const listEl =
-    document.getElementById(
-      'statusList'
-    );
-
-
-  const updatedEl =
-    document.getElementById(
-      'statusUpdated'
-    );
-
-
+  const listEl = document.getElementById('statusList');
+  const updatedEl = document.getElementById('statusUpdated');
   try {
-
-    const res =
-      await fetch(
-        STEAM_PROXY_URL,
-        {
-          cache:
-            'no-store'
-        }
-      );
-
-
-    if (!res.ok) {
-
-      throw new Error(
-        'bad response'
-      );
-
-    }
-
-
-    const data =
-      await res.json();
-
-
-    const players =
-      data.players ||
-      [];
-
-
-    if (
-      !players.length
-    ) {
-
-      listEl.innerHTML =
-        '<p class="status-updated">Профили не найдены.</p>';
-
+    const res = await fetch(STEAM_PROXY_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const players = data.players || [];
+    if (!players.length) {
+      listEl.innerHTML = '<p class="status-updated">Профили не найдены.</p>';
       return;
-
     }
-
-
-    renderSteamStatus(
-      players
-    );
-
-
-    updatedEl.textContent =
-      'Обновлено: ' +
-      new Date(
-        data.ts ||
-        Date.now()
-      ).toLocaleTimeString(
-        'ru-RU'
-      );
-
+    renderSteamStatus(players);
+    updatedEl.textContent = 'Обновлено: ' + new Date(data.ts || Date.now()).toLocaleTimeString('ru-RU');
   } catch (err) {
-
-    listEl.innerHTML =
-      '<p class="status-updated">Не удалось получить статус. Прокси ещё не настроен или недоступен.</p>';
-
-
-    updatedEl.textContent =
-      '';
-
-
-    console.warn(
-      'Steam status fetch failed:',
-      err
-    );
-
+    listEl.innerHTML = '<p class="status-updated">Не удалось получить статус. Прокси не настроен или недоступен.</p>';
+    updatedEl.textContent = '';
+    console.warn('Steam status fetch failed:', err);
   }
-
 }
-
 
 function startSteamPolling() {
-
   fetchSteamStatus();
-
-
-  if (steamPollTimer) {
-
-    clearInterval(
-      steamPollTimer
-    );
-
-  }
-
-
-  steamPollTimer =
-    setInterval(
-      fetchSteamStatus,
-      STEAM_POLL_INTERVAL
-    );
-
+  if (steamPollTimer) clearInterval(steamPollTimer);
+  steamPollTimer = setInterval(fetchSteamStatus, 30000);
 }
-
 
 function stopSteamPolling() {
-
-  if (steamPollTimer) {
-
-    clearInterval(
-      steamPollTimer
-    );
-
-
-    steamPollTimer =
-      null;
-
-  }
-
+  if (steamPollTimer) { clearInterval(steamPollTimer); steamPollTimer = null; }
 }
-
 
 setupOverlay(
   statusButton,
-
-  document.getElementById(
-    'statusOverlay'
-  ),
-
-  document.getElementById(
-    'statusClose'
-  ),
-
+  document.getElementById('statusOverlay'),
+  document.getElementById('statusClose'),
   startSteamPolling,
-
   stopSteamPolling
 );
 
-
-/*
-   Лёгкий фоновый опрос раз в минуту, чтобы точка-индикатор
-   на самой кнопке была живой, даже если окно не открыто.
-*/
-
+/* фоновый опрос, чтобы индикатор на кнопке был живым */
 fetchSteamStatus();
-
-
-setInterval(
-  fetchSteamStatus,
-  60000
-);
+setInterval(fetchSteamStatus, 60000);
 
 
 /* =========================================================
