@@ -3482,6 +3482,7 @@ input[type="range"]:hover {
 .st-info>b{font-weight:600;text-align:right}
 .st-info small{display:block;margin-top:1px;color:var(--muted);font-size:12px;font-weight:500}
 
+.status-hint{margin:8px 0 0;font-size:11px;line-height:1.4;color:var(--muted);opacity:.65}
 </style>
 </head>
 
@@ -3961,6 +3962,10 @@ input[type="range"]:hover {
     <p
       class="status-updated"
       id="statusUpdated">
+    </p>
+
+    <p class="status-hint">
+      Если долгая загрузка, используйте VPN
     </p>
 
   </div>
@@ -4954,7 +4959,7 @@ async function fetchSteamStatus() {
   const listEl = document.getElementById('statusList');
   const updatedEl = document.getElementById('statusUpdated');
   try {
-    const res = await fetch(STEAM_PROXY_URL, { cache: 'no-store' });
+    const res = await fetch(STEAM_PROXY_URL, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error('bad response');
     const data = await res.json();
     const players = data.players || [];
@@ -4965,7 +4970,7 @@ async function fetchSteamStatus() {
     renderSteamStatus(players);
     updatedEl.textContent = 'Обновлено: ' + new Date(data.ts || Date.now()).toLocaleTimeString('ru-RU');
   } catch (err) {
-    listEl.innerHTML = '<p class="status-updated">Не удалось получить статус. Прокси не настроен или недоступен.</p>';
+    listEl.innerHTML = '<p class="status-updated">Не удалось получить статус. Попробуй включить VPN и обновить страницу.</p>';
     updatedEl.textContent = '';
     console.warn('Steam status fetch failed:', err);
   }
