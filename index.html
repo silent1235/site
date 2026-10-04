@@ -3358,16 +3358,14 @@ input[type="range"]:hover {
    REDUCED MOTION
 ========================================================= */
 
-@media (prefers-reduced-motion:reduce) {
-
-  .intro-overlay,
-  .intro-text,
-  .intro-char,
-  .intro-overlay::after,
-  .page,
-  .settings-toggle,
-  .player-toggle,
-  .status-toggle {
+:root[data-fx="off"] .intro-overlay,
+:root[data-fx="off"] .intro-text,
+:root[data-fx="off"] .intro-char,
+:root[data-fx="off"] .intro-overlay::after,
+:root[data-fx="off"] .page,
+:root[data-fx="off"] .settings-toggle,
+:root[data-fx="off"] .player-toggle,
+:root[data-fx="off"] .status-toggle{
 
     animation:
       none !important;
@@ -3378,16 +3376,12 @@ input[type="range"]:hover {
     filter:
       none !important;
   }
-
-
-  .intro-overlay {
+:root[data-fx="off"] .intro-overlay{
 
     display:
       none !important;
   }
-
-
-  .page {
+:root[data-fx="off"] .page{
 
     opacity:
       1 !important;
@@ -3398,11 +3392,9 @@ input[type="range"]:hover {
     pointer-events:
       auto !important;
   }
-
-
-  .settings-toggle,
-  .player-toggle,
-  .status-toggle {
+:root[data-fx="off"] .settings-toggle,
+:root[data-fx="off"] .player-toggle,
+:root[data-fx="off"] .status-toggle{
 
     opacity:
       1 !important;
@@ -3413,9 +3405,7 @@ input[type="range"]:hover {
     transform:
       none !important;
   }
-
-
-  .intro-char {
+:root[data-fx="off"] .intro-char{
 
     opacity:
       1 !important;
@@ -3423,8 +3413,6 @@ input[type="range"]:hover {
     transform:
       none !important;
   }
-
-}
 
 
 /* =========================================================
@@ -3584,12 +3572,70 @@ button,a{-webkit-tap-highlight-color:transparent}
 :root.is-paused *,:root.is-paused ::before,:root.is-paused ::after{animation-play-state:paused!important}
 
 @media (max-width:480px){.donate-toggle{top:auto;bottom:18px;--ty:0px}}
-@media (prefers-reduced-motion:reduce){
-  .orb,.coin-rain i,.coin-face,.donate-toggle::after,.donate-toggle .corner-icon,.link::before,.link::after,.donate-cta::before,
-  .page.is-visible *,.modal-overlay.is-open .modal>*{animation:none!important}
-  .donate-toggle{transition:none!important;opacity:1!important;visibility:visible!important;transform:translate3d(0,var(--ty),0)!important}
+:root[data-fx="off"] .orb,
+:root[data-fx="off"] .coin-rain i,
+:root[data-fx="off"] .coin-face,
+:root[data-fx="off"] .donate-toggle::after,
+:root[data-fx="off"] .donate-toggle .corner-icon,
+:root[data-fx="off"] .link::before,
+:root[data-fx="off"] .link::after,
+:root[data-fx="off"] .donate-cta::before,
+:root[data-fx="off"] .page.is-visible *,
+:root[data-fx="off"] .modal-overlay.is-open .modal>*{animation:none!important}
+:root[data-fx="off"] .donate-toggle{transition:none!important;opacity:1!important;visibility:visible!important;transform:translate3d(0,var(--ty),0)!important}
+
+/* =========================================================
+   FX-РЕЖИМЫ: full (ПК) / lite (телефон) / off
+========================================================= */
+@keyframes page-reveal{0%{opacity:0;transform:translate3d(0,14px,0) scale(.99);filter:blur(5px)}45%{opacity:.55;filter:blur(2px)}100%{opacity:1;transform:none;filter:none}}
+@keyframes page-reveal-lite{0%{opacity:0;transform:translate3d(0,14px,0)}100%{opacity:1;transform:none;filter:none}}
+
+/* пока открыто окно, фон замирает: размытие не пересчитывается каждый кадр */
+body:has(.modal-overlay.is-open) .orb{animation-play-state:paused}
+
+/* lite: убираем самое дорогое для GPU телефона */
+:root[data-fx="lite"] *,:root[data-fx="lite"] ::before,:root[data-fx="lite"] ::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+:root[data-fx="lite"] .modal-overlay{background:color-mix(in srgb,var(--bg-1) 90%,transparent)}
+:root[data-fx="lite"] .orb,:root[data-fx="lite"] .link::after,:root[data-fx="lite"] .donate-toggle::after,
+:root[data-fx="lite"] .coin-rain i:nth-child(n+4){display:none}
+:root[data-fx="lite"] body::before{-webkit-mask-image:none;mask-image:none;opacity:.22}
+:root[data-fx="lite"] .intro-overlay::before{filter:none;animation:none}
+:root[data-fx="lite"] .page{filter:none}
+:root[data-fx="lite"] .page.is-visible{animation-name:page-reveal-lite;animation-duration:.7s}
+:root[data-fx="lite"] .modal,:root[data-fx="lite"] .modal-overlay.is-open .modal{filter:none}
+:root[data-fx="lite"] .modal{transition:transform 320ms var(--ease),opacity 240ms ease}
+:root[data-fx="lite"] h1{text-shadow:0 0 26px var(--text-glow)}
+:root[data-fx="lite"] .donate-toggle .corner-icon,:root[data-fx="lite"] .donate-toggle:hover .corner-icon{animation:none}
+:root[data-fx="lite"] .coin-face{animation:coin-float 4s ease-in-out infinite}
+:root[data-fx="lite"] .link--primary::before,:root[data-fx="lite"] .donate-cta::before{will-change:transform}
+
+/* off */
+:root[data-fx="off"] .orb,:root[data-fx="off"] .link::after{display:none}
+
+/* телефон: кнопка статуса — в левый нижний угол (зеркало доната) */
+@media (max-width:480px){
+  .status-toggle{top:auto;bottom:18px;transform:translate3d(0,0,0) scale(.94)}
+  .status-toggle.is-visible{transform:translate3d(0,0,0) scale(1)}
+  .status-toggle:hover,.status-toggle:focus-visible{transform:translate3d(0,-2px,0) scale(1.02)}
+  .status-toggle:active{transform:translate3d(0,0,0) scale(.95)}
+  body{padding-bottom:84px}
 }
+
+/* переключатель анимаций в настройках */
+.fx-title{margin:18px 0 8px}
+.fx-switch{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:0 0 8px;border-radius:13px;background:var(--surface);border:1px solid var(--border)}
+.fx-switch button{font:inherit;font-size:14px;font-weight:600;padding:8px 2px;border:0;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;transition:color .2s,background .2s,box-shadow .2s}
+.fx-switch button:hover{color:var(--ink)}
+.fx-switch button.is-active{background:var(--grad);color:#fff;box-shadow:0 0 12px var(--cta-glow)}
 </style>
+<script>
+(function(){var r=document.documentElement,m=window.matchMedia;
+window.fxResolve=function(p){var reduce=m('(prefers-reduced-motion: reduce)').matches,
+small=m('(pointer: coarse)').matches||m('(max-width: 640px)').matches;
+return (!p||p==='auto')?(reduce?'off':small?'lite':'full'):p};
+var p='auto';try{p=localStorage.getItem('silent1235-fx')||'auto'}catch(e){}
+r.dataset.fx=window.fxResolve(p);})();
+</script>
 </head>
 
 
@@ -6891,6 +6937,35 @@ setupOverlay(
   });
 })();
 
+
+/* =========================================================
+   FX SWITCH (настройки -> Анимации)
+========================================================= */
+(function () {
+  const KEY = 'silent1235-fx';
+  const LABELS = { auto: 'Авто', full: 'Полные', lite: 'Лёгкие', off: 'Выкл' };
+  const host = document.getElementById('themeGrid');
+  host.insertAdjacentHTML('afterend',
+    '<p class="settings-hint fx-title">Анимации</p><div class="fx-switch" id="fxSwitch">' +
+    Object.keys(LABELS).map(function (k) { return '<button type="button" data-fx="' + k + '">' + LABELS[k] + '</button>'; }).join('') +
+    '</div><p class="mode-note" id="fxNote"></p>');
+  function pref() { try { return localStorage.getItem(KEY) || 'auto'; } catch (e) { return 'auto'; } }
+  function paint() {
+    const p = pref(), eff = root.dataset.fx;
+    document.querySelectorAll('#fxSwitch button').forEach(function (b) { b.classList.toggle('is-active', b.dataset.fx === p); });
+    document.getElementById('fxNote').textContent = p !== 'auto'
+      ? { full: 'Все эффекты включены.', lite: 'Без размытия и тяжёлых эффектов — для слабых устройств.', off: 'Анимации выключены.' }[eff]
+      : 'Авто: ' + (eff === 'off' ? 'в системе включено «уменьшить движение», поэтому анимации выключены. Выбери «Полные», чтобы включить.'
+        : eff === 'lite' ? 'на телефоне включён лёгкий режим.' : 'все эффекты включены.');
+  }
+  document.getElementById('fxSwitch').addEventListener('click', function (e) {
+    const b = e.target.closest('button'); if (!b) return;
+    try { localStorage.setItem(KEY, b.dataset.fx); } catch (err) {}
+    root.dataset.fx = window.fxResolve(b.dataset.fx);
+    paint();
+  });
+  paint();
+})();
 </script>
 
 </body>
