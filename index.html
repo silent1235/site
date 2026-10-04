@@ -3627,12 +3627,30 @@ body:has(.modal-overlay.is-open) .orb{animation-play-state:paused}
 .fx-switch button{font:inherit;font-size:14px;font-weight:600;padding:8px 2px;border:0;border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;transition:color .2s,background .2s,box-shadow .2s}
 .fx-switch button:hover{color:var(--ink)}
 .fx-switch button.is-active{background:var(--grad);color:#fff;box-shadow:0 0 12px var(--cta-glow)}
+
+/* lite v2: только самое дешёвое (opacity/transform, без blur, масок и бесконечных циклов) */
+:root[data-fx="lite"] .intro-overlay::before,:root[data-fx="lite"] .intro-overlay::after,
+:root[data-fx="lite"] body::before,:root[data-fx="lite"] .coin-rain,
+:root[data-fx="lite"] .link--primary::before,:root[data-fx="lite"] .donate-cta::before{display:none}
+:root[data-fx="lite"] .intro-overlay.is-leaving{transform:none;transition:opacity 500ms ease}
+:root[data-fx="lite"] .intro-overlay.is-leaving .intro-text{transform:none;transition:opacity 400ms ease}
+:root[data-fx="lite"] .coin-face{animation:none}
+:root[data-fx="lite"] .page.is-visible h1,:root[data-fx="lite"] .page.is-visible .bio,
+:root[data-fx="lite"] .page.is-visible .link,:root[data-fx="lite"] .page.is-visible .footer-secret{animation:none}
+:root[data-fx="lite"] .modal-overlay.is-open .modal>:not(.modal-close){animation:none!important}
+:root[data-fx="lite"] .modal{box-shadow:0 10px 26px rgba(0,0,0,.45)}
+:root[data-fx="lite"] h1{text-shadow:none}
+:root[data-fx="lite"] .intro-char,:root[data-fx="lite"] .intro-overlay,:root[data-fx="lite"] .page,
+:root[data-fx="lite"] .settings-toggle,:root[data-fx="lite"] .player-toggle,
+:root[data-fx="lite"] .status-toggle,:root[data-fx="lite"] .donate-toggle{will-change:auto}
 </style>
 <script>
 (function(){var r=document.documentElement,m=window.matchMedia;
 window.fxResolve=function(p){var reduce=m('(prefers-reduced-motion: reduce)').matches,
 small=m('(pointer: coarse)').matches||m('(max-width: 640px)').matches;
-return (!p||p==='auto')?(reduce?'off':small?'lite':'full'):p};
+if(p&&p!=='auto')return p;var base=reduce?'off':small?'lite':'full',cap='',rk={full:2,lite:1,off:0};
+try{cap=localStorage.getItem('silent1235-fxcap')||''}catch(e){}
+return (cap&&rk[cap]<rk[base])?cap:base};
 var p='auto';try{p=localStorage.getItem('silent1235-fx')||'auto'}catch(e){}
 r.dataset.fx=window.fxResolve(p);})();
 </script>
@@ -6949,22 +6967,52 @@ setupOverlay(
     '<p class="settings-hint fx-title">Анимации</p><div class="fx-switch" id="fxSwitch">' +
     Object.keys(LABELS).map(function (k) { return '<button type="button" data-fx="' + k + '">' + LABELS[k] + '</button>'; }).join('') +
     '</div><p class="mode-note" id="fxNote"></p>');
+  function capped() { try { return !!localStorage.getItem('silent1235-fxcap'); } catch (e) { return false; } }
   function pref() { try { return localStorage.getItem(KEY) || 'auto'; } catch (e) { return 'auto'; } }
   function paint() {
     const p = pref(), eff = root.dataset.fx;
     document.querySelectorAll('#fxSwitch button').forEach(function (b) { b.classList.toggle('is-active', b.dataset.fx === p); });
     document.getElementById('fxNote').textContent = p !== 'auto'
       ? { full: 'Все эффекты включены.', lite: 'Без размытия и тяжёлых эффектов — для слабых устройств.', off: 'Анимации выключены.' }[eff]
-      : 'Авто: ' + (eff === 'off' ? 'в системе включено «уменьшить движение», поэтому анимации выключены. Выбери «Полные», чтобы включить.'
-        : eff === 'lite' ? 'на телефоне включён лёгкий режим.' : 'все эффекты включены.');
+      : 'Авто: ' + (eff === 'off' ? (capped() ? 'устройство не тянуло анимации, поэтому они выключены автоматически. Выбери «Лёгкие» или «Полные», чтобы вернуть.' : 'в системе включено «уменьшить движение», поэтому анимации выключены. Выбери «Полные», чтобы включить.')
+        : eff === 'lite' ? (capped() ? 'устройство тормозило, включён лёгкий режим.' : 'на телефоне включён лёгкий режим.') : 'все эффекты включены.');
   }
   document.getElementById('fxSwitch').addEventListener('click', function (e) {
     const b = e.target.closest('button'); if (!b) return;
-    try { localStorage.setItem(KEY, b.dataset.fx); } catch (err) {}
+    try { localStorage.setItem(KEY, b.dataset.fx); if (b.dataset.fx === 'auto') localStorage.removeItem('silent1235-fxcap'); } catch (err) {}
     root.dataset.fx = window.fxResolve(b.dataset.fx);
     paint();
   });
   paint();
+  document.addEventListener('fxchange', paint);
+})();
+
+/* =========================================================
+   FPS GUARD (только в режиме «Авто»)
+========================================================= */
+(function () {
+  let p = 'auto'; try { p = localStorage.getItem('silent1235-fx') || 'auto'; } catch (e) {}
+  if (p !== 'auto' || root.dataset.fx === 'off') return;
+  let frames = 0, bad = 0, slot = 0;
+  const start = performance.now();
+  function drop() {
+    const next = root.dataset.fx === 'full' ? 'lite' : 'off';
+    try { localStorage.setItem('silent1235-fxcap', next); } catch (e) {}
+    root.dataset.fx = next; bad = 0;
+    document.dispatchEvent(new Event('fxchange'));
+  }
+  function tick(t) {
+    if (!slot || document.hidden) { slot = t; frames = 0; requestAnimationFrame(tick); return; }
+    frames++;
+    if (t - slot >= 1000) {
+      bad = (frames * 1000 / (t - slot)) < 24 ? bad + 1 : 0;
+      frames = 0; slot = t;
+      if (bad >= 2) { drop(); if (root.dataset.fx === 'off') return; }
+    }
+    if (t - start > 10000) return;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 })();
 </script>
 
